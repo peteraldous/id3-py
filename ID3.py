@@ -136,7 +136,9 @@ import string, types, sys
 
 if (sys.version_info[0] >= 3):
     string_types = [ type('str'), type(b'bytes') ]
+    int_type = int
 else:
+    int_type = types.IntType
     try:
         string_types = [ types.StringType, types.UnicodeType ]
     except AttributeError:                  # if no unicode support
@@ -291,10 +293,10 @@ class ID3:
 
     def find_genre(self, genre_to_find):
         i = 0
-        find_me = string.lower(genre_to_find)
+        find_me = genre_to_find.lower()
 
         for genre in self.genres:
-            if string.lower(genre) == find_me:
+            if genre.lower() == find_me:
                 break
             i = i + 1
         if i == len(self.genres):
@@ -303,7 +305,8 @@ class ID3:
             return i
 
     def legal_genre(self, genre):
-        if type(genre) is types.IntType and 0 <= genre < len(self.genres):
+        # types.IntType should be int for python3
+        if type(genre) is int_type and 0 <= genre < len(self.genres):
             return 1
         else:
             return 0
@@ -414,7 +417,7 @@ class ID3:
                     print (self.genre, v)
                     self.d[k] = self.tupleize(str(v))
         else:
-            self.__dict__[string.lower(key)] = v
+            self.__dict__[key.lower()] = v
             self.d[k] = self.tupleize(v)
         self.__dict__['modified'] = 1
         self.__dict__['has_tag'] = 1
@@ -453,5 +456,5 @@ class ID3:
                 else:
                     self.__dict__['d']['GENRE'] = self.tupleize('Unknown Genre')
             else:
-                self.__dict__['d'][string.upper(name)] = self.tupleize(value)
+                self.__dict__['d'][name.upper()] = self.tupleize(value)
         self.__dict__[name] = value
