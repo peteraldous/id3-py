@@ -142,11 +142,13 @@ if (sys.version_info[0] >= 3):
     string_types = [ type('str'), type(b'bytes') ]
     int_type = int
     standard_tag = b'TAG'
+    extended_tag = b'TAG+'
     python3 = True
 else:
     # python2 - or, I suppose, older
     int_type = types.IntType
     standard_tag = 'TAG'
+    extended_tag = 'TAG+'
     python3 = False
     try:
         string_types = [ types.StringType, types.UnicodeType ]
@@ -225,7 +227,9 @@ class ID3:
         self.modified = 0
         self.has_tag = 0
         self.had_tag = 0
+        self.has_extended_tag = 0
 
+        # read ID3v1 tag
         try:
             self.file.seek(-128, 2)
 
@@ -244,13 +248,15 @@ class ID3:
                 self.year = self.file.read(4)
                 self.comment = self.file.read(30)
 
+                # read produces byte strings in python3, not str objects
                 if python3:
                     self.comment = self.comment.decode("utf-8")
                     self.title = self.title.decode("utf-8")
                     self.artist = self.artist.decode("utf-8")
                     self.album = self.album.decode("utf-8")
                     self.year = self.year.decode("utf-8")
-                print(self.comment)
+
+                # get the track number from the comment
                 if ord(self.comment[-2]) == 0 and ord(self.comment[-1]) != 0:
                     self.track = ord(self.comment[-1])
                     self.comment = self.comment[:-2]
@@ -265,12 +271,70 @@ class ID3:
                 self.year = strip_padding(self.year)
                 self.comment = strip_padding(self.comment)
 
-                self.setup_dict()
+        except IOError as msg:
+            self.modified = 0
+            raise InvalidTagError("Invalid ID3 tag in %s: %s" % (self.filename,
+                                                                 msg))
+
+        # read ID3v1 extended tag
+        try:
+            # 128 + 227 = 355
+            self.file.seek(-355, 2)
+
+        except IOError as msg:
+            self.modified = 0
+            raise InvalidTagError("Can't open %s: %s" % (self.filename, msg))
+            return
+
+        try:
+            if self.file.read(4) == extended_tag:
+                self.has_tag = 1
+                self.has_extended_tag = 1
+                self.had_tag = 1
+                title_ext = self.file.read(60)
+                artist_ext = self.file.read(60)
+                album_ext = self.file.read(60)
+                speed = self.file.read(1)
+                genre = self.file.read(30)
+                start_time = self.file.read(6)
+                end_time = self.file.read(6)
+
+                # read produces byte strings in python3, not str objects
+                if python3:
+                    title_ext = title_ext.decode("utf-8")
+                    artist_ext = artist_ext.decode("utf-8")
+                    album_ext = album_ext.decode("utf-8")
+                    genre = genre.decode("utf-8")
+                    speed = speed.decode("utf-8")
+                    start_time = start_time.decode("utf-8")
+                    end_time = end_time.decode("utf-8")
+
+                self.title = self.title + title_ext
+                self.artist = self.artist + artist_ext
+                self.album = self.album + album_ext
+
+                genre = strip_padding(genre)
+
+                # we give precedence to the extended genre
+                if genre is not None and not genre == "":
+                    self.genre = genre
+
+                # extract the speed as a byte
+                self.speed = ord(speed)
+
+                self.title = strip_padding(self.title)
+                self.artist = strip_padding(self.artist)
+                self.album = strip_padding(self.album)
+                self.start_time = start_time
+                self.end_time = end_time
 
         except IOError as msg:
             self.modified = 0
             raise InvalidTagError("Invalid ID3 tag in %s: %s" % (self.filename,
                                                                  msg))
+
+        # finish up
+        self.setup_dict()
         self.modified = 0
 
     def setup_dict(self):
@@ -280,10 +344,20 @@ class ID3:
         if self.album: self.d["ALBUM"] = self.tupleize(self.album)
         if self.year: self.d["YEAR"] = self.tupleize(self.year)
         if self.comment: self.d["COMMENT"] = self.tupleize(self.comment)
+
+        if self.legal_speed(self.speed):
+            self.d["SPEED"] = self.tupleize(self.speed)
+        else:
+            self.d["SPEED"] = self.tupleize("")
+
+        if self.start_time: self.d["STARTTIME"] = self.tupleize(self.start_time)
+        if self.end_time: self.d["END_TIME"] = self.tupleize(self.end_time)
+
         if self.legal_genre(self.genre):
             self.d["GENRE"] = self.tupleize(self.genres[self.genre])
         else:
             self.d["GENRE"] = self.tupleize("Unknown Genre")
+
         if self.track: self.d["TRACKNUMBER"] = self.tupleize(str(self.track))
 
     def delete(self):
@@ -299,6 +373,9 @@ class ID3:
         self.comment = ''
         self.track = None
         self.genre = 255 # 'unknown', not 'blues'
+        self.speed = 0 # 0 is unset
+        self.start_time = ''
+        self.end_time = ''
         self.setup_dict()
 
     def tupleize(self, s):
@@ -319,6 +396,13 @@ class ID3:
             return -1
         else:
             return i
+
+    def legal_speed(self, speed):
+        # 0 <= speed <= 4
+        if type(speed) is int_type and 0 <= speed < 5:
+            return True
+        else:
+            return False
 
     def legal_genre(self, genre):
         if type(genre) is int_type and 0 <= genre < len(self.genres):
