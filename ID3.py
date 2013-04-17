@@ -135,10 +135,16 @@
 import string, types, sys
 
 if (sys.version_info[0] >= 3):
+    # python3 - possibly newer
     string_types = [ type('str'), type(b'bytes') ]
     int_type = int
+    standard_tag = b'TAG'
+    python3 = True
 else:
+    # python2 - or, I suppose, older
     int_type = types.IntType
+    standard_tag = 'TAG'
+    python3 = False
     try:
         string_types = [ types.StringType, types.UnicodeType ]
     except AttributeError:                  # if no unicode support
@@ -226,7 +232,7 @@ class ID3:
             return
 
         try:
-            if self.file.read(3) == 'TAG':
+            if self.file.read(3) == standard_tag:
                 self.has_tag = 1
                 self.had_tag = 1
                 self.title = self.file.read(30)
@@ -235,6 +241,13 @@ class ID3:
                 self.year = self.file.read(4)
                 self.comment = self.file.read(30)
 
+                if python3:
+                    self.comment = self.comment.decode("utf-8")
+                    self.title = self.title.decode("utf-8")
+                    self.artist = self.artist.decode("utf-8")
+                    self.album = self.album.decode("utf-8")
+                    self.year = self.year.decode("utf-8")
+                print(self.comment)
                 if ord(self.comment[-2]) == 0 and ord(self.comment[-1]) != 0:
                     self.track = ord(self.comment[-1])
                     self.comment = self.comment[:-2]
