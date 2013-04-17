@@ -85,7 +85,7 @@
 #     Genre of the song. Integer value from 0 to 255. Genre specification
 #     comes from (sorry) WinAMP. http://mp3.musichall.cz/id3master/faq.htm
 #     has a list of current genres; I spell-checked this list against
-#     WinAMP's by running strings(1) on the file Winamp/Plugins/in_mp3.dll 
+#     WinAMP's by running strings(1) on the file Winamp/Plugins/in_mp3.dll
 #     and made a few corrections.
 #   ID3['GENRE']
 #     String value corresponding to the integer in ID3.genre.  If there
@@ -112,12 +112,12 @@
 #
 #     NOTE: write() is called from ID3's deconstructor, so it's technically
 #     unnecessary to call it. However, write() can raise an InvalidTagError,
-#     which can't be caught during deconstruction, so generally it's 
+#     which can't be caught during deconstruction, so generally it's
 #     nicer to call it when writing is desired.
-#   
+#
 #   delete()
 #     Flags the ID3 tag for deletion upon destruction of the object
-#   
+#
 #   find_genre(genre_string)
 #     Searches for the numerical value of the given genre string in the
 #     ID3.genres table. The search is performed case-insensitively. Returns
@@ -164,34 +164,34 @@ class InvalidTagError:
 
 class ID3:
 
-    genres = [ 
-        "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk", 
-        "Grunge", "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies", "Other", 
-        "Pop", "R&B", "Rap", "Reggae", "Rock", "Techno", "Industrial", 
-        "Alternative", "Ska", "Death Metal", "Pranks", "Soundtrack", 
-        "Euro-Techno", "Ambient", "Trip-Hop", "Vocal", "Jazz+Funk", "Fusion", 
-        "Trance", "Classical", "Instrumental", "Acid", "House", "Game", 
-        "Sound Clip", "Gospel", "Noise", "Alt. Rock", "Bass", "Soul", 
-        "Punk", "Space", "Meditative", "Instrum. Pop", "Instrum. Rock", 
-        "Ethnic", "Gothic", "Darkwave", "Techno-Indust.", "Electronic", 
-        "Pop-Folk", "Eurodance", "Dream", "Southern Rock", "Comedy", 
-        "Cult", "Gangsta", "Top 40", "Christian Rap", "Pop/Funk", "Jungle", 
-        "Native American", "Cabaret", "New Wave", "Psychadelic", "Rave", 
-        "Showtunes", "Trailer", "Lo-Fi", "Tribal", "Acid Punk", "Acid Jazz", 
-        "Polka", "Retro", "Musical", "Rock & Roll", "Hard Rock", "Folk", 
-        "Folk/Rock", "National Folk", "Swing", "Fusion", "Bebob", "Latin", 
-        "Revival", "Celtic", "Bluegrass", "Avantgarde", "Gothic Rock", 
-        "Progress. Rock", "Psychadel. Rock", "Symphonic Rock", "Slow Rock", 
-        "Big Band", "Chorus", "Easy Listening", "Acoustic", "Humour", 
-        "Speech", "Chanson", "Opera", "Chamber Music", "Sonata", "Symphony", 
-        "Booty Bass", "Primus", "Porn Groove", "Satire", "Slow Jam", 
-        "Club", "Tango", "Samba", "Folklore", "Ballad", "Power Ballad", 
-        "Rhythmic Soul", "Freestyle", "Duet", "Punk Rock", "Drum Solo", 
-        "A Capella", "Euro-House", "Dance Hall", "Goa", "Drum & Bass", 
-        "Club-House", "Hardcore", "Terror", "Indie", "BritPop", "Negerpunk", 
-        "Polsk Punk", "Beat", "Christian Gangsta Rap", "Heavy Metal", 
+    genres = [
+        "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk",
+        "Grunge", "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies", "Other",
+        "Pop", "R&B", "Rap", "Reggae", "Rock", "Techno", "Industrial",
+        "Alternative", "Ska", "Death Metal", "Pranks", "Soundtrack",
+        "Euro-Techno", "Ambient", "Trip-Hop", "Vocal", "Jazz+Funk", "Fusion",
+        "Trance", "Classical", "Instrumental", "Acid", "House", "Game",
+        "Sound Clip", "Gospel", "Noise", "Alt. Rock", "Bass", "Soul",
+        "Punk", "Space", "Meditative", "Instrum. Pop", "Instrum. Rock",
+        "Ethnic", "Gothic", "Darkwave", "Techno-Indust.", "Electronic",
+        "Pop-Folk", "Eurodance", "Dream", "Southern Rock", "Comedy",
+        "Cult", "Gangsta", "Top 40", "Christian Rap", "Pop/Funk", "Jungle",
+        "Native American", "Cabaret", "New Wave", "Psychadelic", "Rave",
+        "Showtunes", "Trailer", "Lo-Fi", "Tribal", "Acid Punk", "Acid Jazz",
+        "Polka", "Retro", "Musical", "Rock & Roll", "Hard Rock", "Folk",
+        "Folk/Rock", "National Folk", "Swing", "Fusion", "Bebob", "Latin",
+        "Revival", "Celtic", "Bluegrass", "Avantgarde", "Gothic Rock",
+        "Progress. Rock", "Psychadel. Rock", "Symphonic Rock", "Slow Rock",
+        "Big Band", "Chorus", "Easy Listening", "Acoustic", "Humour",
+        "Speech", "Chanson", "Opera", "Chamber Music", "Sonata", "Symphony",
+        "Booty Bass", "Primus", "Porn Groove", "Satire", "Slow Jam",
+        "Club", "Tango", "Samba", "Folklore", "Ballad", "Power Ballad",
+        "Rhythmic Soul", "Freestyle", "Duet", "Punk Rock", "Drum Solo",
+        "A Capella", "Euro-House", "Dance Hall", "Goa", "Drum & Bass",
+        "Club-House", "Hardcore", "Terror", "Indie", "BritPop", "Negerpunk",
+        "Polsk Punk", "Beat", "Christian Gangsta Rap", "Heavy Metal",
         "Black Metal", "Crossover", "Contemporary Christian", "Christian Rock",
-        "Merengue", "Salsa", "Thrash Metal", "Anime", "Jpop", "Synthpop" 
+        "Merengue", "Salsa", "Thrash Metal", "Anime", "Jpop", "Synthpop"
         ]
 
     def __init__(self, file, name='unknown filename', as_tuple=0):
@@ -208,7 +208,7 @@ class ID3:
 
             self.file = file
             self.can_reopen = 0
-            
+
         self.d = {}
         self.as_tuple = as_tuple
         self.delete_tag = 0
@@ -216,7 +216,7 @@ class ID3:
         self.modified = 0
         self.has_tag = 0
         self.had_tag = 0
-        
+
         try:
             self.file.seek(-128, 2)
 
@@ -284,7 +284,7 @@ class ID3:
         self.track = None
         self.genre = 255 # 'unknown', not 'blues'
         self.setup_dict()
-        
+
     def tupleize(self, s):
         if self.as_tuple and type(s) is not types.TupleType:
             return (s,)
@@ -305,7 +305,6 @@ class ID3:
             return i
 
     def legal_genre(self, genre):
-        # types.IntType should be int for python3
         if type(genre) is int_type and 0 <= genre < len(self.genres):
             return 1
         else:
