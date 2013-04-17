@@ -132,13 +132,16 @@
 #     See the notes above for the dictionary interface.
 #
 
-import string, types
+import string, types, sys
 
-try:
-    string_types = [ types.StringType, types.UnicodeType ]
-except AttributeError:                  # if no unicode support
+if (sys.version_info[0] >= 3):
+    string_types = [ type('str'), type(b'bytes') ]
+else:
+    try:
+        string_types = [ types.StringType, types.UnicodeType ]
+    except AttributeError:                  # if no unicode support
 
-    string_types = [ types.StringType ]
+        string_types = [ types.StringType ]
 
 def lengthen(string, num_spaces):
     string = string[:num_spaces]
