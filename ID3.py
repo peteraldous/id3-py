@@ -3,6 +3,9 @@
 # Module for manipulating ID3 informational tags in MP3 audio files
 # $Id: ID3.py,v 1.6 2002/04/05 02:33:39 che_fox Exp $
 
+# Forked by Petey <peteyblueeyes@gmail.com> and made compatible with
+# python3. Hopefully, extended ID3v1 support will come soon.
+
 # Written 2 May 1999 by Ben Gertzfield <che@debian.org>
 # This work is released under the GNU GPL, version 2 or later.
 
